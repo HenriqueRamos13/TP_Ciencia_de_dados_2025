@@ -24,6 +24,7 @@ export interface Config {
   output: {
     jsonFile: string;
   };
+  environment: string;
 }
 
 export const config: Config = {
@@ -47,4 +48,5 @@ export const config: Config = {
   output: {
     jsonFile: process.env.JSON_OUTPUT_FILE || './products.json',
   },
+  environment: process.env.ENVIRONMENT || 'local',
 };

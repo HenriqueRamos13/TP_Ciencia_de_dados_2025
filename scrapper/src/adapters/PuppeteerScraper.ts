@@ -10,11 +10,13 @@ export class PuppeteerScraper implements WebScraper {
   private browser: Browser | null = null;
   private page: Page | null = null;
   private config: Config['browser'] & Config['scraping'];
+  private environment: string;
   private cookiesAccepted: boolean = false;
   private snapshotDir: string = './htmls-snapshot';
 
   constructor(config: Config) {
     this.config = { ...config.browser, ...config.scraping };
+    this.environment = config.environment;
     this.ensureSnapshotDir();
   }
 
@@ -48,7 +50,7 @@ export class PuppeteerScraper implements WebScraper {
   async initialize(): Promise<void> {
     console.log('Iniciando navegador...');
 
-    this.browser = await puppeteer.launch({
+    const launchOptions: any = {
       headless: this.config.headless,
       args: [
         '--no-sandbox',
@@ -56,7 +58,13 @@ export class PuppeteerScraper implements WebScraper {
         '--disable-blink-features=AutomationControlled',
         '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       ],
-    });
+    };
+
+    if (this.environment === 'vps') {
+      launchOptions.executablePath = '/usr/bin/chromium';
+    }
+
+    this.browser = await puppeteer.launch(launchOptions);
 
     this.page = await this.browser.newPage();
     await this.page.setViewport({ width: 1920, height: 1080 });
